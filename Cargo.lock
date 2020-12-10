@@ -894,6 +894,7 @@ dependencies = [
 [[package]]
 name = "ic-agent"
 version = "0.1.0"
+source = "git+https://github.com/nomeata/agent-rs?branch=joachim/musl-hacks#844613c6f363f384cf652651f021be15b88c72bc"
 dependencies = [
  "async-trait",
  "base32",
@@ -908,6 +909,8 @@ dependencies = [
  "pem",
  "rand",
  "reqwest",
+ "ring",
+ "rustls",
  "serde",
  "serde_bytes",
  "serde_cbor",
@@ -915,6 +918,7 @@ dependencies = [
  "simple_asn1",
  "thiserror",
  "url 2.2.0",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -937,6 +941,7 @@ dependencies = [
 [[package]]
 name = "ic-types"
 version = "0.1.2"
+source = "git+https://github.com/nomeata/agent-rs?branch=joachim/musl-hacks#844613c6f363f384cf652651f021be15b88c72bc"
 dependencies = [
  "base32",
  "crc32fast",

@@ -20,8 +20,8 @@ futures = "0.3"
 delay = "0.3.0"
 
 [patch.crates-io]
-ic-agent = { path = "../agent-rs/ic-agent" }
-ic-types = { path = "../agent-rs/ic-types" }
+ic-agent = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
+ic-types = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
 
 [features]
 with-lambda = []

@@ -1,5 +1,6 @@
-
 // The main function used with lambda
+
+use clap::{App, Arg};
 
 #[cfg(feature = "with-lambda")]
 use lambda_http::{lambda, IntoResponse};
@@ -10,11 +11,29 @@ fn main() {
         request: lambda_http::Request,
         _context: lambda_runtime::Context,
     ) -> Result<impl IntoResponse, lambda_runtime::error::HandlerError> {
+        let matches = App::new("ic-http-lambda")
+            .args(&[Arg::new("force-canister-id")
+                .about("Sets the canister id to use instead of parsing from the url.")
+                .takes_value(true)
+                .short('c')
+                .long("force-canister-id")
+                .default_value("")])
+            .args(&[Arg::new("replica-url")
+                .about("Sets the url for the running replica to forward requests to.")
+                .takes_value(true)
+                .short('r')
+                .long("replica-url")
+                .default_value("https://gw.dfinity.network")])
+            .get_matches();
+        let force_canister_id = matches.value_of("force-canister-id").unwrap();
+        let replica_url = matches.value_of("replica_url").unwrap();
         let response_builder = simple_server::ResponseBuilder::new();
         let mut rt = tokio::runtime::Runtime::new().unwrap();
         let resp = rt.block_on(handle(
             request.map(|b| b.as_ref().to_vec()),
             response_builder,
+            force_canister_id,
+            replica_url,
         ));
         resp.or_else(|e| {
             println!("Error: {}", e);
@@ -33,16 +52,34 @@ fn main() {
 fn main() {
     // env_logger::init().unwrap();
 
+    let matches = App::new("ic-http-lambda")
+        .args(&[Arg::new("force-canister-id")
+            .about("Sets the canister id to use instead of parsing from the url.")
+            .takes_value(true)
+            .short('c')
+            .long("force-canister-id")
+            .default_value("")])
+        .args(&[Arg::new("replica-url")
+            .about("Sets the url for the running replica to forward requests to.")
+            .takes_value(true)
+            .short('r')
+            .long("replica-url")
+            .default_value("https://gw.dfinity.network")])
+        .get_matches();
+    let force_canister_id = matches.value_of("force-canister-id").unwrap().to_string();
+    let replica_url = matches.value_of("replica-url").unwrap().to_string();
+
     let host = "127.0.0.1";
     let port = "7878";
 
-    let server = simple_server::Server::new(|request, response| {
+    let server = simple_server::Server::new(move |request, response| {
         let mut rt = tokio::runtime::Runtime::new().unwrap();
-        rt.block_on(handle(request, response)).or_else(|e| {
-            Ok(simple_server::ResponseBuilder::new()
-                .body(format!("{}", e).as_bytes().to_vec())
-                .unwrap())
-        })
+        rt.block_on(handle(request, response, &force_canister_id, &replica_url))
+            .or_else(|e| {
+                Ok(simple_server::ResponseBuilder::new()
+                    .body(format!("{}", e).as_bytes().to_vec())
+                    .unwrap())
+            })
     });
 
     println!("Running on http://{}:{}/", host, port);
@@ -78,28 +115,33 @@ struct HTTPResult {
 async fn handle(
     request: http::Request<Vec<u8>>,
     mut response: simple_server::ResponseBuilder,
+    force_canister_id: &str,
+    replica_url: &str,
 ) -> Result<http::Response<Vec<u8>>, Box<dyn Send + Sync + std::error::Error>> {
-    let url = "https://gw.dfinity.network";
-
     println!("Uri: {}", request.uri());
     println!("Request: {:?}", String::from_utf8_lossy(request.body()));
 
-    let cid = match request
-        .uri()
-        .host()
-        .and_then(|h| h.strip_suffix(".ic.nomeata.de").map(|x| x.to_owned()))
-        .and_then(|cid| ic_types::Principal::from_text(cid).ok())
-    {
-        Some(cid) => cid,
-        None => {
-            return Err(
-                format!("Use https://<cid>ic.nomeata.de/!\n(got: {})", request.uri()).into(),
-            )
-        }
-    };
+    let cid: ic_types::Principal;
+    if !force_canister_id.is_empty() {
+        cid = ic_types::Principal::from_text(force_canister_id).unwrap();
+    } else {
+        cid = match request
+            .uri()
+            .host()
+            .and_then(|h| h.strip_suffix(".ic.nomeata.de").map(|x| x.to_owned()))
+            .and_then(|c| ic_types::Principal::from_text(c).ok())
+        {
+            Some(c) => c,
+            None => {
+                return Err(
+                    format!("Use https://<cid>ic.nomeata.de/!\n(got: {})", request.uri()).into(),
+                )
+            }
+        };
+    }
 
     let agent = ic_agent::Agent::builder()
-        .with_url(url)
+        .with_url(replica_url)
         .build()
         .map_err(|e| Box::new(e))?;
     let req = HTTPRequest {

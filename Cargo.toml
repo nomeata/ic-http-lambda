@@ -18,6 +18,7 @@ candid = "^0.6.11"
 serde = "^1.0"
 futures = "0.3"
 delay = "0.3.0"
+clap = "3.0.0-beta.2"
 
 [patch.crates-io]
 ic-agent = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }

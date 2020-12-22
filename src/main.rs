@@ -1,5 +1,6 @@
 // The main function used with lambda
 
+#[cfg(not(feature = "with-lambda"))]
 use clap::{App, Arg};
 
 #[cfg(feature = "with-lambda")]
@@ -11,29 +12,13 @@ fn main() {
         request: lambda_http::Request,
         _context: lambda_runtime::Context,
     ) -> Result<impl IntoResponse, lambda_runtime::error::HandlerError> {
-        let matches = App::new("ic-http-lambda")
-            .args(&[Arg::new("force-canister-id")
-                .about("Sets the canister id to use instead of parsing from the url.")
-                .takes_value(true)
-                .short('c')
-                .long("force-canister-id")
-                .default_value("")])
-            .args(&[Arg::new("replica-url")
-                .about("Sets the url for the running replica to forward requests to.")
-                .takes_value(true)
-                .short('r')
-                .long("replica-url")
-                .default_value("https://gw.dfinity.network")])
-            .get_matches();
-        let force_canister_id = matches.value_of("force-canister-id").unwrap();
-        let replica_url = matches.value_of("replica_url").unwrap();
         let response_builder = simple_server::ResponseBuilder::new();
         let mut rt = tokio::runtime::Runtime::new().unwrap();
         let resp = rt.block_on(handle(
             request.map(|b| b.as_ref().to_vec()),
             response_builder,
-            force_canister_id,
-            replica_url,
+            "",
+            "https://gw.dfinity.network",
         ));
         resp.or_else(|e| {
             println!("Error: {}", e);

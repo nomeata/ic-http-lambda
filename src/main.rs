@@ -17,8 +17,8 @@ fn main() {
         let resp = rt.block_on(handle(
             request.map(|b| b.as_ref().to_vec()),
             response_builder,
-            "",
-            "https://gw.dfinity.network",
+            None,
+            &"https://gw.dfinity.network".to_string(),
         ));
         resp.or_else(|e| {
             println!("Error: {}", e);
@@ -42,8 +42,7 @@ fn main() {
             .about("Sets the canister id to use instead of parsing from the url.")
             .takes_value(true)
             .short('c')
-            .long("force-canister-id")
-            .default_value("")])
+            .long("force-canister-id")])
         .args(&[Arg::new("replica-url")
             .about("Sets the url for the running replica to forward requests to.")
             .takes_value(true)
@@ -51,7 +50,7 @@ fn main() {
             .long("replica-url")
             .default_value("https://gw.dfinity.network")])
         .get_matches();
-    let force_canister_id = matches.value_of("force-canister-id").unwrap().to_string();
+    let force_canister_id = matches.value_of("force-canister-id").map(|s| s.to_string());
     let replica_url = matches.value_of("replica-url").unwrap().to_string();
 
     let host = "127.0.0.1";
@@ -100,17 +99,16 @@ struct HTTPResult {
 async fn handle(
     request: http::Request<Vec<u8>>,
     mut response: simple_server::ResponseBuilder,
-    force_canister_id: &str,
-    replica_url: &str,
+    force_canister_id: &Option<String>,
+    replica_url: &String,
 ) -> Result<http::Response<Vec<u8>>, Box<dyn Send + Sync + std::error::Error>> {
     println!("Uri: {}", request.uri());
     println!("Request: {:?}", String::from_utf8_lossy(request.body()));
 
     let cid: ic_types::Principal;
-    if !force_canister_id.is_empty() {
-        cid = ic_types::Principal::from_text(force_canister_id).unwrap();
-    } else {
-        cid = match request
+    cid = match force_canister_id {
+        Some(id) => ic_types::Principal::from_text(id).unwrap(),
+        None => match request
             .uri()
             .host()
             .and_then(|h| h.strip_suffix(".ic.nomeata.de").map(|x| x.to_owned()))
@@ -122,8 +120,8 @@ async fn handle(
                     format!("Use https://<cid>ic.nomeata.de/!\n(got: {})", request.uri()).into(),
                 )
             }
-        };
-    }
+        }
+    };
 
     let agent = ic_agent::Agent::builder()
         .with_url(replica_url)

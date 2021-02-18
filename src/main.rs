@@ -161,7 +161,7 @@ async fn handle(
         agent.fetch_root_key().await?;
         let waiter = delay::Delay::builder()
             .throttle(std::time::Duration::from_millis(500))
-            .timeout(std::time::Duration::from_secs(5))
+            .timeout(std::time::Duration::from_secs(45))
             .build();
 
         let result_blob = agent

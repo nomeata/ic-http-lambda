@@ -17,7 +17,7 @@ fn main() {
         let resp = rt.block_on(handle(
             request.map(|b| b.as_ref().to_vec()),
             response_builder,
-            None,
+            &None,
             &"https://gw.dfinity.network".to_string(),
         ));
         resp.or_else(|e| {

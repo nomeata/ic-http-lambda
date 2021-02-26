@@ -83,15 +83,6 @@ domain (e.g. *.ic.yourdomain.com) and create an ACM Certificate for it. Request
 a public certificate with two domain names: *.ic.yourdomain.com and
 ic.yourdomain.com. Complete validation by email or DNS.
 
-Also make note of the Invoke URL.
-
-## Configure your DNS
-
-In the DNS settings for your domain, add two new CNAME records, one for `ic`
-and one for `*.ic`, both pointing at your Invoke URL (minus the https://).
-
-# Complete gateway configuration
-
 Once Amazon has had a chance to verify ownership of your domain, refresh the
 "Create Domain Name" page and select the new certificate.
 
@@ -102,6 +93,14 @@ Under "Develop" in the menu on the left, chose "Integrations". Select "ANY"
 under `/{proxy+}` and click "Manage Integration". Edit the "Integration
 details" and under "Advanced settings", make sure the timeout is 30000
 milliseconds and set the "Payload version format" to 1.0.
+
+Before leaving the main gateway configuration page, make note of the Invoke
+URL.
+
+## Configure your DNS
+
+In the DNS settings for your domain, add two new CNAME records, one for `ic`
+and one for `*.ic`, both pointing at your Invoke URL (minus the https://).
 
 At this point, navigating to https://\<cid\>.ic.yourdomain.com should properly
 forward your request to and return the response from your caniser.

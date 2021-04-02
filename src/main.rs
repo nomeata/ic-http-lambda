@@ -18,7 +18,7 @@ fn main() {
             request.map(|b| b.as_ref().to_vec()),
             response_builder,
             &None,
-            &"https://gw.dfinity.network".to_string(),
+            &"https://mercury.dfinity.network".to_string(),
         ));
         resp.or_else(|e| {
             println!("Error: {}", e);

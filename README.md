@@ -53,7 +53,7 @@ increase the timeout to 30 seconds.
 Make sure `main.rs` uses a domain you own and not nomeata.de.
 
 Make sure `deploy.sh` specifies the correct region and your new lambda function
-name. 
+name.
 
 Run `deploy.sh`.
 
@@ -67,21 +67,21 @@ patched agent-rs without an openssl dependency for now.</sub>
 ## Create the HTTP API Gateway
 
 From the [API Gateway service](https://aws.amazon.com/api-gateway/) of your AWS
-Management Console, create an HTTP API. 
+Management Console, create an HTTP API.
 
 Add a Lambda integration and select your new function.
 
 Add an "ANY" Route with `/{proxy+}` as the Resource path and your lambda as the
-Integration target. 
+Integration target.
 
 Leave `$default` as the Stage name.
 
 ### Configure your gateway
 
 Choose "Custom domain names" from the menu. Create one for your wildcard ic
-domain (e.g. *.ic.yourdomain.com) and create an ACM Certificate for it. Request
-a public certificate with two domain names: *.ic.yourdomain.com and
-ic.yourdomain.com. Complete validation by email or DNS.
+domain (e.g. `*.ic.yourdomain.com`) and create an ACM Certificate for it. Request
+a public certificate with two domain names: `*.ic.yourdomain.com` and
+`ic.yourdomain.com`. Complete validation by email or DNS.
 
 Once Amazon has had a chance to verify ownership of your domain, refresh the
 "Create Domain Name" page and select the new certificate.

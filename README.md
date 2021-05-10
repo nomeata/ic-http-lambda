@@ -61,9 +61,6 @@ Run `deploy.sh`.
 [here](https://aws.amazon.com/blogs/opensource/rust-runtime-for-aws-lambda/) if
 you are compiling on Mac OS.
 
-<sub> note: To build for Amazon lambda, and hence musl, Cargo.toml specifies a
-patched agent-rs without an openssl dependency for now.</sub>
-
 ## Create the HTTP API Gateway
 
 From the [API Gateway service](https://aws.amazon.com/api-gateway/) of your AWS

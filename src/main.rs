@@ -13,7 +13,7 @@ fn main() {
         _context: lambda_runtime::Context,
     ) -> Result<impl IntoResponse, lambda_runtime::error::HandlerError> {
         let response_builder = simple_server::ResponseBuilder::new();
-        let mut rt = tokio::runtime::Runtime::new().unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
         let resp = rt.block_on(handle(
             request.map(|b| b.as_ref().to_vec()),
             response_builder,

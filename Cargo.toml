@@ -20,9 +20,9 @@ futures = "0.3"
 delay = "0.3.0"
 clap = "3.0.0-beta.2"
 
-[patch.crates-io]
-#ic-agent = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
-#ic-types = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
+# not actually a dependency of us, but this
+# allows the build to go through when building on musl
+openssl = { version = "0.10.32", features = ["vendored"] }
 
 [features]
 with-lambda = []

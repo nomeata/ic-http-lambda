@@ -48,7 +48,7 @@ fn main() {
             .takes_value(true)
             .short('r')
             .long("replica-url")
-            .default_value("https://gw.dfinity.network")])
+            .default_value("https://ic0.app")])
         .get_matches();
     let force_canister_id = matches.value_of("force-canister-id").map(|s| s.to_string());
     let replica_url = matches.value_of("replica-url").unwrap().to_string();
@@ -57,7 +57,7 @@ fn main() {
     let port = "7878";
 
     let server = simple_server::Server::new(move |request, response| {
-        let mut rt = tokio::runtime::Runtime::new().unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(handle(request, response, &force_canister_id, &replica_url))
             .or_else(|e| {
                 Ok(simple_server::ResponseBuilder::new()
@@ -117,14 +117,15 @@ async fn handle(
             Some(c) => c,
             None => {
                 return Err(
-                    format!("Use https://<cid>ic.nomeata.de/!\n(got: {})", request.uri()).into(),
+                    format!("Use https://<cid>.ic.nomeata.de/!\n(got: {})", request.uri()).into(),
                 )
             }
         }
     };
 
+    let transport = ic_agent::agent::http_transport::ReqwestHttpReplicaV2Transport::create(replica_url)?;
     let agent = ic_agent::Agent::builder()
-        .with_url(replica_url)
+        .with_transport(transport)
         .build()
         .map_err(|e| Box::new(e))?;
     let req = HTTPRequest {

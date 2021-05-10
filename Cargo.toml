@@ -9,11 +9,11 @@ edition = "2018"
 [dependencies]
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
-tokio = {version = "^0.2", features = ["full"]}
+tokio = {version = "^1.5.0", features = ["full"]}
 simple-server = "0.4"
 http = "^0.1"
-ic-agent = "^0.1"
-ic-types = "^0.1"
+ic-agent = "^0.4.0"
+ic-types = "^0.1.2"
 candid = "^0.6.11"
 serde = "^1.0"
 futures = "0.3"
@@ -21,8 +21,8 @@ delay = "0.3.0"
 clap = "3.0.0-beta.2"
 
 [patch.crates-io]
-ic-agent = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
-ic-types = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
+#ic-agent = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
+#ic-types = { git = "https://github.com/nomeata/agent-rs", branch = "joachim/musl-hacks" }
 
 [features]
 with-lambda = []
